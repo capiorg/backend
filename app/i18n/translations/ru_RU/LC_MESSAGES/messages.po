@@ -1,0 +1,265 @@
+# Russian translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-07-06 01:32+0300\n"
+"PO-Revision-Date: 2022-07-06 01:37+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ru_RU\n"
+"Language-Team: ru_RU <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+msgid "field required"
+msgstr "обязательное поле"
+
+msgid "extra fields not permitted"
+msgstr "лишние поля не допускаются"
+
+msgid "none is not an allowed value"
+msgstr "none не является допустимым значением"
+
+msgid "value is not none"
+msgstr "значение не none"
+
+msgid "value is not None"
+msgstr "значение не None"
+
+msgid "value could not be parsed to a boolean"
+msgstr "значение не может быть преобразовано в логическое значение"
+
+msgid "byte type expected"
+msgstr "ожидался тип байтов"
+
+msgid "value is not a valid dict"
+msgstr "значение не является словарем"
+
+msgid "value is not a valid email address"
+msgstr "значение не является электронной почтой"
+
+msgid "invalid or missing URL scheme"
+msgstr "схема URL является недопустимой/отсутствующей"
+
+msgid "URL scheme not permitted"
+msgstr "URL схема запрещена"
+
+msgid "userinfo required in URL but missing"
+msgstr "информация о пользователе требуется в URL, но отсутствует"
+
+msgid "URL host invalid"
+msgstr "URL хоста недействителен"
+
+msgid "URL host invalid, top level domain required"
+msgstr "URL хоста недействителен, требуется домен верхнего уровня"
+
+msgid "URL port invalid, port cannot exceed 65535"
+msgstr "Порт URL-адреса недействителен, порт не может превышать 65535"
+
+msgid "URL invalid, extra characters found after valid URL: {}"
+msgstr "URL-адрес недействителен, после действительного URL-адреса обнаружены лишние символы: {}"
+
+msgid "{} is not a valid Enum instance"
+msgstr "{} не является допустимым экземпляром Enum"
+
+msgid "{} is not a valid IntEnum instance"
+msgstr "{} не является допустимым экземпляром IntEnum"
+
+msgid "value is not a valid integer"
+msgstr "значение не является допустимым целым числом"
+
+msgid "value is not a valid float"
+msgstr "значение не является допустимым числом с плавающей запятой"
+
+msgid "value is not a valid path"
+msgstr "значение не является допустимым путем"
+
+msgid "file or directory at path \"{}\" does not exist"
+msgstr "файл или каталог по пути \"{}\" не существует"
+
+msgid "path \"{}\" does not point to a file"
+msgstr "путь \"{}\" не указывает на файл"
+
+msgid "path \"{}\" does not point to a directory"
+msgstr "путь \"{}\" не указывает на каталог"
+
+msgid "ensure this value contains valid import path or valid callable: {}"
+msgstr "убедитесь, что это значение содержит допустимый путь импорта или допустимый вызываемый объект: {}"
+
+msgid "value is not a valid sequence"
+msgstr "значение не является допустимой последовательностью"
+
+msgid "value is not a valid list"
+msgstr "значение не является допустимым списком"
+
+msgid "value is not a valid set"
+msgstr "значение не является допустимым множеством"
+
+msgid "value is not a valid frozenset"
+msgstr "значение не является допустимым неизменяемым множеством"
+
+msgid "value is not a valid tuple"
+msgstr "значение не является допустимым кортежем"
+
+msgid "wrong tuple length {}"
+msgstr "неправильная длина кортежа {}"
+
+msgid "ensure this value has at least {} items"
+msgstr "убедитесь, что это значение содержит не менее {} элементов"
+
+msgid "ensure this value has at most {} items"
+msgstr "убедитесь, что это значение содержит не более {} элементов"
+
+msgid "the list has duplicated items"
+msgstr "в списке есть повторяющиеся элементы"
+
+msgid "ensure this value has at least {} characters"
+msgstr "убедитесь, что это значение содержит не менее {} символов"
+
+msgid "ensure this value has at most {} characters"
+msgstr "убедитесь, что это значение содержит не более {} символов"
+
+msgid "str type expected"
+msgstr "ожидаемый тип - строка"
+
+msgid "string does not match regex \"{}\""
+msgstr "строка не соответствует регулярному выражению \"{}\""
+
+msgid "ensure this value is greater than {}"
+msgstr "убедитесь, что это значение больше {}"
+
+msgid "ensure this value is greater than or equal to {}"
+msgstr "убедитесь, что это значение больше или равно {}"
+
+msgid "ensure this value is less than {}"
+msgstr "убедитесь, что это значение меньше {}"
+
+msgid "ensure this value is less than or equal to {}"
+msgstr "убедитесь, что это значение меньше или равно {}"
+
+msgid "ensure this value is a multiple of {}"
+msgstr "убедитесь, что это значение кратно {}"
+
+msgid "value is not a valid decimal"
+msgstr "значение не является допустимым десятичным числом"
+
+msgid "ensure that there are no more than {} digits in total"
+msgstr "убедитесь, что всего не более {} цифр"
+
+msgid "ensure that there are no more than {} decimal places"
+msgstr "убедитесь, что не более {} знаков после запятой"
+
+msgid "ensure that there are no more than {} digits before the decimal point"
+msgstr "убедитесь, что до десятичной точки не более {} цифр"
+
+msgid "invalid datetime format"
+msgstr "неверный формат даты и времени"
+
+msgid "invalid date format"
+msgstr "неверный формат даты"
+
+msgid "date is not in the past"
+msgstr "дата не может быть в прошлом"
+
+msgid "date is not in the future"
+msgstr "дата не может быть в будущем"
+
+msgid "invalid time format"
+msgstr "неверный формат времени"
+
+msgid "invalid duration format"
+msgstr "неверный формат отрезка времени"
+
+msgid "value is not a valid hashable"
+msgstr  "значение не является допустимым хэшем"
+
+msgid "value is not a valid uuid"
+msgstr "значение не является допустимым UUID"
+
+msgid "uuid version {} expected"
+msgstr "ожидается версия uuid {}"
+
+msgid "instance of {} expected"
+msgstr  "ожидается экземпляр {}"
+
+msgid "a class is expected"
+msgstr "ожидается класс"
+
+msgid "subclass of {} expected"
+msgstr "ожидается подкласс {}"
+
+msgid "Invalid JSON"
+msgstr "Неверный JSON"
+
+msgid "JSON object must be str, bytes or bytearray"
+msgstr "Объект JSON должен быть str, bytes или bytearray"
+
+msgid "Invalid regular expression"
+msgstr "Недопустимое регулярное выражение"
+
+msgid "instance of {}, tuple or dict expected"
+msgstr "ожидается экземпляр {}, кортеж или словарь"
+
+msgid "{} is not callable"
+msgstr "{} не вызывается"
+
+msgid "value is not a valid IPv4 or IPv6 address"
+msgstr "значение не является допустимым адресом IPv4 или IPv6"
+
+msgid "value is not a valid IPv4 or IPv6 interface"
+msgstr "значение не является допустимым интерфейсом IPv4 или IPv6"
+
+msgid "value is not a valid IPv4 or IPv6 network"
+msgstr "значение не является допустимой сетью IPv4 или IPv6"
+
+msgid "value is not a valid IPv4 address"
+msgstr "значение не является действительным адресом IPv4"
+
+msgid "value is not a valid IPv6 address"
+msgstr "значение не является действительным адресом IPv6"
+
+msgid "value is not a valid IPv4 network"
+msgstr "значение не является допустимой сетью IPv4"
+
+msgid "value is not a valid IPv6 network"
+msgstr "значение не является допустимой сетью IPv6"
+
+msgid "value is not a valid IPv4 interface"
+msgstr "значение не является допустимым интерфейсом IPv4"
+
+msgid "value is not a valid IPv6 interface"
+msgstr "значение не является допустимым интерфейсом IPv6"
+
+msgid "value is not a valid color: {}"
+msgstr "значение не является допустимым цветом: {}"
+
+msgid "value is not a valid boolean"
+msgstr "значение не является допустимым логическим значением"
+
+msgid "card number is not all digits"
+msgstr "номер карты не состоит из цифр"
+
+msgid "card number is not luhn valid"
+msgstr "номер карты недействителен"
+
+msgid "Length for a {}"
+msgstr "Длина для {}"
+
+msgid "could not parse value and unit from byte string"
+msgstr "не удалось разобрать значение и единицу измерения из байтовой строки"
+
+msgid "could not interpret byte unit: {}"
+msgstr "не удалось интерпретировать байтовую единицу: {}"
+
+msgid "Discriminator {} is missing in value"
+msgstr "Дискриминатор {} отсутствует в значении"
+
+msgid "No match for discriminator {}"
+msgstr "Не соответствует дискриминатору {}"
