@@ -19,7 +19,11 @@ engine = create_async_engine(
 
 sync_engine = create_engine(settings_app.sync_dns)
 
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+async_session = sessionmaker(
+    engine,
+    expire_on_commit=False,
+    class_=AsyncSession,
+)
 autocommit_engine = engine.execution_options(isolation_level="AUTOCOMMIT")
 
 metadata = sqlalchemy.MetaData()

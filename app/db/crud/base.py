@@ -51,6 +51,7 @@ class BaseCRUD(ABC):
                 except Exception as exc:  # noqa
                     logger.error(f"Произошла ошибка в транзакции: {exc}")
                     await session.rollback()
+                    raise exc
                 finally:
                     await session.commit()
 

@@ -8,7 +8,7 @@ from app.db.decorators import orm_error_handler
 from app.db.models import User
 
 
-class UserRepository:
+class MessageRepository:
     def __init__(self, db_session: sessionmaker):
         self.db_session = db_session
         self.model = User

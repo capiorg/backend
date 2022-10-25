@@ -177,6 +177,16 @@ class HTTPAuthSettings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
+class OtherServicesSettings(BaseSettings):
+    SMSAERO_EMAIL: str = Field(env="SMSAERO_EMAIL")
+    SMSAERO_API_KEY: str = Field(env="SMSAERO_APIKEY")
+    IPWHOIS_API: str = Field(env="IPWHOIS_API")
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class HTTPAuthSettingsMarker:
     pass
 
@@ -185,6 +195,11 @@ class BaseSettingsMarker:
     pass
 
 
+class OtherServicesSettingsMarker:
+    pass
+
+
 settings_app = Settings()
 settings_sensus_app = SettingsOpenSensus()
 settings_redis = RedisSettings()
+settings_services = OtherServicesSettings()

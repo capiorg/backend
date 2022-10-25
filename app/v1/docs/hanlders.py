@@ -15,7 +15,7 @@ docs_router = APIRouter()
 @docs_router.get("/docs", include_in_schema=False)
 async def docs_handler(request: Request, _: str = Depends(get_username_http_auth)):
     root_path = f'{request.scope.get("root_path", "")}/openapi.json'
-    return custom_swagger_ui_html(openapi_url=root_path, title="Документация v2")
+    return custom_swagger_ui_html(openapi_url=root_path, title="Документация v1")
 
 
 @docs_router.get("/openapi.json", include_in_schema=False)
@@ -28,5 +28,5 @@ async def docs_handler(
         title="CapiMessanger Microservice",
         version=settings_base.APP_VERSION,
         routes=request.app.routes,
-        servers=[{"url": "/api/v2"}],
+        servers=[{"url": "/api/v1"}],
     )

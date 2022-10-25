@@ -1,6 +1,4 @@
-import logging
-from logging.config import dictConfig
-
+import uvicorn
 from fastapi import Depends
 from fastapi import FastAPI
 from opencensus.trace.samplers import AlwaysOnSampler
@@ -8,23 +6,37 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette_exporter import PrometheusMiddleware
 from starlette_exporter import handle_metrics
+from smsaero.client import SMSAero
 
+from app.exceptions.binding import setup_exception_handlers
 from app.i18n.tr import get_locale
+from app.services.ipwhois.client import IPWhoisClient
+from app.services.ipwhois.dependencies import IPWhoisClientMarker
+from app.services.smsaero.dependencies import SMSAeroDependencyMarker
 from app.utils.logging.middlewares import LoggingMiddleware
 from app.utils.logging.middlewares import OpenCensusFastAPIMiddleware
 from app.v1.binding import own_router_v1
+from app.v1.conversations.chats.dependencies import ChatDependencyMarker
+from app.v1.conversations.chats.repo import ChatRepository
+from app.v1.security.dependencies import UserSessionDependencyMarker
+from app.v1.security.repo import UserSessionRepository
+from app.v1.security.services import UserSessionService
 from app.v1.users.dependencies import UsersDependencyMarker
 from app.v1.users.services import UserService
 from config import BaseSettingsMarker
 from config import HTTPAuthSettings
 from config import HTTPAuthSettingsMarker
+from config import OtherServicesSettings
+from config import OtherServicesSettingsMarker
 from config import Settings
 from config import settings_app
 from config import settings_sensus_app
+from config import settings_services
 from misc import async_session
 
-dictConfig(settings_sensus_app.log_config)
-logger = logging.getLogger(__name__)
+
+# dictConfig(settings_sensus_app.log_config)
+# logger = logging.getLogger(__name__)
 
 
 def get_application_v1() -> FastAPI:
@@ -62,12 +74,28 @@ def get_application_v1() -> FastAPI:
     application.dependency_overrides.update(
         {
             UsersDependencyMarker: lambda: UserService(db_session=async_session),
+            UserSessionDependencyMarker: lambda: UserSessionService(
+                repo=UserSessionRepository(db_session=async_session),
+                sms_aero=SMSAero(
+                    email=settings_services.SMSAERO_EMAIL,
+                    api_key=settings_services.SMSAERO_API_KEY,
+                ),
+                whois=IPWhoisClient(api_key=settings_services.IPWHOIS_API)
+            ),
             HTTPAuthSettingsMarker: lambda: HTTPAuthSettings(),
             BaseSettingsMarker: lambda: Settings(),
+            OtherServicesSettingsMarker: lambda: OtherServicesSettings(),
+            SMSAeroDependencyMarker: lambda: SMSAero(
+                email=settings_services.SMSAERO_EMAIL,
+                api_key=settings_services.SMSAERO_API_KEY,
+            ),
+            IPWhoisClientMarker: lambda: IPWhoisClient(api_key=settings_services.IPWHOIS_API),
+            ChatDependencyMarker: lambda: ChatRepository(db_session=async_session)
         }
     )
+
     application.include_router(own_router_v1)
-    # application = setup_exception_handlers(app=application)
+    application = setup_exception_handlers(app=application)
     return application
 
 
@@ -94,3 +122,6 @@ def get_parent_app() -> FastAPI:
 
 
 app = get_parent_app()
+
+if __name__ == '__main__':
+    uvicorn.run("main:app", port=10100, reload=True)

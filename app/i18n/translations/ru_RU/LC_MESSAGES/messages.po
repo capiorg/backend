@@ -1,15 +1,15 @@
 # Russian translations for PROJECT.
 # Copyright (C) 2021 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <SMSAERO_EMAIL@ADDRESS>, 2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"Report-Msgid-Bugs-To: SMSAERO_EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-07-06 01:32+0300\n"
 "PO-Revision-Date: 2022-07-06 01:37+0300\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: FULL NAME <SMSAERO_EMAIL@ADDRESS>\n"
 "Language: ru_RU\n"
 "Language-Team: ru_RU <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"

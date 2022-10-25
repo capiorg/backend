@@ -1,0 +1,2 @@
+class ChatDependencyMarker:
+    pass

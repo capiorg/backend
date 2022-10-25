@@ -2,19 +2,27 @@ from typing import Generic
 from typing import Optional
 from typing import TypeVar
 
-from pydantic import BaseModel
 from pydantic.generics import GenericModel
+
+from app.v1.schemas.base import BaseModelORM
 
 ChildT = TypeVar("ChildT")
 
 
-class BaseError(BaseModel):
+class BaseExceptionError(BaseModelORM):
+    exception: str
+    detail: Optional[str] = None
+    message: Optional[str] = None
+
+
+class BaseError(BaseModelORM):
     code: str
     message: str
+    exception: Optional[BaseExceptionError]
 
 
-class BaseResponse(GenericModel, BaseModel, Generic[ChildT]):
-    status: bool
-    code: int
+class BaseResponse(GenericModel, BaseModelORM, Generic[ChildT]):
+    status: bool = True
+    code: int = 200
     error: Optional[BaseError]
-    result: ChildT
+    result: Optional[ChildT] = None
