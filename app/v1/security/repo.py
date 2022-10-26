@@ -41,7 +41,7 @@ class UserSessionRepository:
             browser_version=browser_version,
             ip=ip,
             country=country,
-            city=city
+            city=city,
         )
         self.base.session.add(model)
         await self.base.session.flush()
@@ -98,7 +98,6 @@ class UserSessionRepository:
                 select(self.model)
                 .options(subqueryload(self.model.device))
                 .filter(self.model.user_id == uuid)
-
             )
             cur = await transaction.execute(stmt)
             return cur.scalars().all()

@@ -10,9 +10,7 @@ class Settings(BaseSettings):
     DB_HOST: str = Field(env="POSTGRES_HOST", default="127.0.0.1")
     DB_BASENAME: str = Field(env="POSTGRES_DB", default="test_db")
 
-    JWT_SECRET: str = Field(
-        env="JWT_SECRET", default=""
-    )
+    JWT_SECRET: str = Field(env="JWT_SECRET", default="")
     JWT_ALGORITHM: str = Field(env="JWT_ALGORITHM", default="HS256")
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
         env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES", default=525600

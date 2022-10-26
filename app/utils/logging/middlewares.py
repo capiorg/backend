@@ -113,7 +113,11 @@ class LoggingMiddleware:
         return body
 
     async def __call__(
-        self, request: Request, call_next: RequestResponseEndpoint, *args, **kwargs
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+        *args,
+        **kwargs,
     ):
         start_time = time.time()
         exception_object = None
@@ -141,7 +145,9 @@ class LoggingMiddleware:
         try:
             response = await call_next(request)
         except Exception as ex:
-            response_body = bytes(http.HTTPStatus.INTERNAL_SERVER_ERROR.phrase.encode())
+            response_body = bytes(
+                http.HTTPStatus.INTERNAL_SERVER_ERROR.phrase.encode()
+            )
             response = handle_custom_500_with_cors(request=request)
             exception_object = ex
             response_headers = {}
@@ -158,7 +164,9 @@ class LoggingMiddleware:
             )
         duration: int = math.ceil((time.time() - start_time) * 1000)
 
-        response_content_type = response.headers.get("Content-Type", EMPTY_VALUE)
+        response_content_type = response.headers.get(
+            "Content-Type", EMPTY_VALUE
+        )
 
         try:
             if "application/json" == response_content_type:
@@ -235,7 +243,8 @@ class OpenCensusFastAPIMiddleware:
         self.sampler = sampler or samplers.AlwaysOnSampler()
         self.exporter = exporter or DefaultExporter()
         self.propagator = (
-            propagator or trace_context_http_header_format.TraceContextPropagator()
+            propagator
+            or trace_context_http_header_format.TraceContextPropagator()
         )
 
     async def __call__(self, request: Request, call_next):

@@ -9,8 +9,10 @@ def standardize_response(status_code: int):
             response = {
                 "status": True,
                 "code": status_code,
-                "result": result_func
+                "result": result_func,
             }
             return response
+
         return wrapper
+
     return decorator

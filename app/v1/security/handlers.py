@@ -39,10 +39,12 @@ security_router = APIRouter()
 async def login(
     request: Request,
     user_service: UserService = Depends(UsersDependencyMarker),
-    user_session_service: UserSessionService = Depends(UserSessionDependencyMarker),
+    user_session_service: UserSessionService = Depends(
+        UserSessionDependencyMarker
+    ),
     form_data: OAuth2PhonePasswordRequestForm = PyFaDepends(
         OAuth2PhonePasswordRequestForm, _type=Form
-        ),
+    ),
 ):
     user = await authenticate(
         phone=form_data.phone,
@@ -50,13 +52,16 @@ async def login(
         user_service=user_service,
     )
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+        raise HTTPException(
+            status_code=400, detail="Incorrect username or password"
+        )
 
     current_ip = request.headers.get("cf-connecting-ip")
     user_agent = request.headers.get("user-agent")
 
     session_type = (
-        SessionTypeEnum.REGISTER if user.status_id == StatusEnum.NOT_ACTIVE
+        SessionTypeEnum.REGISTER
+        if user.status_id == StatusEnum.NOT_ACTIVE
         else SessionTypeEnum.AUTH
     )
 
@@ -64,7 +69,7 @@ async def login(
         user=user,
         ip_address=current_ip,
         user_agent=user_agent,
-        session_type=session_type
+        session_type=session_type,
     )
 
     return {"session": session.uuid}
@@ -77,10 +82,10 @@ async def login(
 )
 async def login(
     user_service: UserService = Depends(UsersDependencyMarker),
-    user_session_service: UserSessionService = Depends(UserSessionDependencyMarker),
-    form_data: OAuth2SessionCode = PyFaDepends(
-        OAuth2SessionCode, _type=Form
-        ),
+    user_session_service: UserSessionService = Depends(
+        UserSessionDependencyMarker
+    ),
+    form_data: OAuth2SessionCode = PyFaDepends(OAuth2SessionCode, _type=Form),
 ):
     """
     Авторизация пользователя в сервисе<br><br>
@@ -108,10 +113,12 @@ async def login(
         else:
             raise RepeatedAuthCodeError(
                 detail="Re-authentication detected. "
-                       "You have already entered this verification code on this device."
+                "You have already entered this verification code on this device."
             )
     else:
-        raise IncorrectAuthCodeError(detail="The verification code was entered incorrectly.")
+        raise IncorrectAuthCodeError(
+            detail="The verification code was entered incorrectly."
+        )
 
 
 @security_router.get(
@@ -122,9 +129,7 @@ async def login(
 @standardize_response(status_code=200)
 async def read_users_me(
     current_user: GetCurrentUserModel = Depends(
-        GetCurrentUser(
-            status=[StatusEnum.ACTIVE, StatusEnum.NOT_ACTIVE]
-        )
+        GetCurrentUser(status=[StatusEnum.ACTIVE, StatusEnum.NOT_ACTIVE])
     ),
 ):
     """
@@ -140,11 +145,11 @@ async def read_users_me(
 )
 @standardize_response(status_code=200)
 async def get_auth_sessions(
-    user_session_service: UserSessionService = Depends(UserSessionDependencyMarker),
+    user_session_service: UserSessionService = Depends(
+        UserSessionDependencyMarker
+    ),
     current_user: GetCurrentUserModel = Depends(
-        GetCurrentUser(
-            status=[StatusEnum.ACTIVE]
-        )
+        GetCurrentUser(status=[StatusEnum.ACTIVE])
     ),
 ):
     """

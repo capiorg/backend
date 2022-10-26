@@ -66,7 +66,9 @@ async def authenticate(
 def create_access_token(*, user: User, session: UUID) -> str:
     return _create_token(
         token_type="access_token",
-        lifetime=timedelta(minutes=settings_app.JWT_ACCESS_TOKEN_EXPIRE_MINUTES),
+        lifetime=timedelta(
+            minutes=settings_app.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        ),
         sub=str(user.uuid),
         session=str(session),
     )
@@ -149,4 +151,3 @@ class GetCurrentUser:
         result.session_id = jwt_session_id
 
         return result
-

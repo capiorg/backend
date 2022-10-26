@@ -20,7 +20,7 @@ def sql_exception_handler(_: Request, exc: ExceptionSQL):
                     exception=str(type(exc.original_exception)),
                     detail=exc.original_detail(),
                     message=exc.original_message(),
-                )
-            )
-        ).dict()
+                ),
+            ),
+        ).dict(),
     )

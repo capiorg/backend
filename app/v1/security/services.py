@@ -64,7 +64,7 @@ class UserSessionService:
 
         random_code = generate_code()
 
-        # await self.send_code(phone=user.phone, code=random_code)
+        await self.send_code(phone=user.phone, code=random_code)
         return await self.repo.create(
             user_uuid=user.uuid,
             code=random_code,

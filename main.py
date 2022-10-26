@@ -18,6 +18,8 @@ from app.utils.logging.middlewares import OpenCensusFastAPIMiddleware
 from app.v1.binding import own_router_v1
 from app.v1.conversations.chats.dependencies import ChatDependencyMarker
 from app.v1.conversations.chats.repo import ChatRepository
+from app.v1.conversations.messages.dependencies import MessageDependencyMarker
+from app.v1.conversations.messages.services import MessageService
 from app.v1.security.dependencies import UserSessionDependencyMarker
 from app.v1.security.repo import UserSessionRepository
 from app.v1.security.services import UserSessionService
@@ -68,19 +70,23 @@ def get_application_v1() -> FastAPI:
         application.middleware("http")(LoggingMiddleware())
         if settings_sensus_app.ENABLE_TELEMETRY:
             application.middleware("http")(
-                OpenCensusFastAPIMiddleware(application, sampler=AlwaysOnSampler())
+                OpenCensusFastAPIMiddleware(
+                    application, sampler=AlwaysOnSampler()
+                )
             )
 
     application.dependency_overrides.update(
         {
-            UsersDependencyMarker: lambda: UserService(db_session=async_session),
+            UsersDependencyMarker: lambda: UserService(
+                db_session=async_session
+            ),
             UserSessionDependencyMarker: lambda: UserSessionService(
                 repo=UserSessionRepository(db_session=async_session),
                 sms_aero=SMSAero(
                     email=settings_services.SMSAERO_EMAIL,
                     api_key=settings_services.SMSAERO_API_KEY,
                 ),
-                whois=IPWhoisClient(api_key=settings_services.IPWHOIS_API)
+                whois=IPWhoisClient(api_key=settings_services.IPWHOIS_API),
             ),
             HTTPAuthSettingsMarker: lambda: HTTPAuthSettings(),
             BaseSettingsMarker: lambda: Settings(),
@@ -89,8 +95,15 @@ def get_application_v1() -> FastAPI:
                 email=settings_services.SMSAERO_EMAIL,
                 api_key=settings_services.SMSAERO_API_KEY,
             ),
-            IPWhoisClientMarker: lambda: IPWhoisClient(api_key=settings_services.IPWHOIS_API),
-            ChatDependencyMarker: lambda: ChatRepository(db_session=async_session)
+            IPWhoisClientMarker: lambda: IPWhoisClient(
+                api_key=settings_services.IPWHOIS_API
+            ),
+            ChatDependencyMarker: lambda: ChatRepository(
+                db_session=async_session
+            ),
+            MessageDependencyMarker: lambda: MessageService(
+                db_session=async_session
+            ),
         }
     )
 
@@ -123,5 +136,5 @@ def get_parent_app() -> FastAPI:
 
 app = get_parent_app()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run("main:app", port=10100, reload=True)

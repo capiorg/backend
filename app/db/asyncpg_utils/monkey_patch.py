@@ -1,4 +1,6 @@
-from sqlalchemy.dialects.postgresql.asyncpg import AsyncAdapt_asyncpg_connection
+from sqlalchemy.dialects.postgresql.asyncpg import (
+    AsyncAdapt_asyncpg_connection,
+)
 from sqlalchemy.dialects.postgresql.asyncpg import AsyncAdapt_asyncpg_dbapi
 
 

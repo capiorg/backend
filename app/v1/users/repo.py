@@ -55,6 +55,8 @@ class UserRepository:
     @orm_error_handler
     async def activate(self, uuid: UUID) -> User:
         async with self.base.transaction_v2() as transaction:
-            result = await self.base.update(self.model.uuid == uuid, status_id=1)
+            result = await self.base.update(
+                self.model.uuid == uuid, status_id=1
+            )
             await transaction.commit()
             return result

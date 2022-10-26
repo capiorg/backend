@@ -12,7 +12,6 @@ class IPWhoisSettings:
 
 
 class IPWhoisClient(IPWhoisSettings, HTTPClient):
-
     def __init__(self, api_key: str):
         self.api_key = api_key
 
@@ -20,6 +19,6 @@ class IPWhoisClient(IPWhoisSettings, HTTPClient):
         response, code = await self._request(
             url=self.URL.format(ip=ip, api_key=self.api_key),
             method="GET",
-            headers=self.HEADERS
+            headers=self.HEADERS,
         )
         return IPWhoisResponseModel.parse_obj(response)

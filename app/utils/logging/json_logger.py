@@ -27,7 +27,9 @@ class JSONLogFormatter(logging.Formatter):
     Кастомизированный класс-форматер для логов в формате json
     """
 
-    def format(self, record: logging.LogRecord, *args, **kwargs) -> Union[dict, str]:
+    def format(
+        self, record: logging.LogRecord, *args, **kwargs
+    ) -> Union[dict, str]:
         """
         Преобразование объект журнала в json
 
@@ -60,7 +62,9 @@ class JSONLogFormatter(logging.Formatter):
             .isoformat()
         )
         message = record.getMessage()
-        duration = record.duration if hasattr(record, "duration") else record.msecs
+        duration = (
+            record.duration if hasattr(record, "duration") else record.msecs
+        )
 
         json_log_fields = BaseJsonLogSchema(
             thread=record.process,
@@ -78,7 +82,9 @@ class JSONLogFormatter(logging.Formatter):
             json_log_fields.props = record.props
 
         if record.exc_info:
-            json_log_fields.exceptions = traceback.format_exception(*record.exc_info)
+            json_log_fields.exceptions = traceback.format_exception(
+                *record.exc_info
+            )
 
         elif record.exc_text:
             json_log_fields.exceptions = record.exc_text

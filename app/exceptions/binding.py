@@ -10,7 +10,11 @@ from app.exceptions.routes.models import RepeatedAuthCodeError
 
 def setup_exception_handlers(app: FastAPI) -> FastAPI:
     app.add_exception_handler(ExceptionSQL, sql_exception_handler)
-    app.add_exception_handler(IncorrectAuthCodeError, incorrect_auth_code_handler)
-    app.add_exception_handler(RepeatedAuthCodeError, incorrect_auth_code_handler)
+    app.add_exception_handler(
+        IncorrectAuthCodeError, incorrect_auth_code_handler
+    )
+    app.add_exception_handler(
+        RepeatedAuthCodeError, incorrect_auth_code_handler
+    )
 
     return app

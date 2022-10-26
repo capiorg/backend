@@ -18,7 +18,7 @@ def incorrect_auth_code_handler(_: Request, exc: IncorrectAuthCodeError):
                 message=exc.detail,
                 exception=BaseExceptionError(
                     exception=str(type(exc)),
-                )
-            )
-        ).dict()
+                ),
+            ),
+        ).dict(),
     )

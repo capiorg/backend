@@ -77,7 +77,12 @@ class BaseCRUD(ABC):
         return result.scalars().all()
 
     async def _update(self, *args: Any, **kwargs: Any) -> Model:
-        stmt = update(self.model).where(*args).values(**kwargs).returning(self.model)
+        stmt = (
+            update(self.model)
+            .where(*args)
+            .values(**kwargs)
+            .returning(self.model)
+        )
 
         stmt = (
             select(self.model)

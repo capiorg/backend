@@ -41,7 +41,9 @@ class StatusMixin(Base):
 
     @declared_attr
     def status_id(cls):
-        return Column(Integer, ForeignKey(column=Statuses.id), default=1, nullable=True)
+        return Column(
+            Integer, ForeignKey(column=Statuses.id), default=1, nullable=True
+        )
 
     @declared_attr
     def status(cls):
@@ -73,7 +75,10 @@ class User(TimestampMixin, StatusMixin, Base):
     last_name = Column(String(255), nullable=False)
     password = Column(String)
 
-    conversations = relationship("Conversation", secondary="users_conversations")
+    is_me = query_expression()
+    conversations = relationship(
+        "Conversation", secondary="users_conversations"
+    )
 
 
 class ChatType(Base):
@@ -86,8 +91,12 @@ class Chat(TimestampMixin, StatusMixin, Base):
     __tablename__ = "chats"
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
-    title = Column(String, nullable=True, comment="Если type group - название чата")
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.uuid"), nullable=True)
+    title = Column(
+        String, nullable=True, comment="Если type group - название чата"
+    )
+    document_id = Column(
+        UUID(as_uuid=True), ForeignKey("documents.uuid"), nullable=True
+    )
 
     document = relationship("Document", viewonly=True, lazy="joined")
     conversation = relationship("Conversation", back_populates="chat")
@@ -96,8 +105,12 @@ class Chat(TimestampMixin, StatusMixin, Base):
 class ConversationUser(TimestampMixin, Base):
     __tablename__ = "users_conversations"
 
-    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.uuid"), primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.uuid"), primary_key=True)
+    conversation_id = Column(
+        UUID(as_uuid=True), ForeignKey("conversations.uuid"), primary_key=True
+    )
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.uuid"), primary_key=True
+    )
 
 
 class Conversation(TimestampMixin, Base):
@@ -150,9 +163,24 @@ class Conversation(TimestampMixin, Base):
 class Message(TimestampMixin, Base):
     __tablename__ = "messages"
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
-    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.uuid"), primary_key=True)
-    author = Column(UUID(as_uuid=True), ForeignKey("users.uuid"), primary_key=True)
+    conversation_id = Column(
+        UUID(as_uuid=True), ForeignKey("conversations.uuid"), primary_key=True
+    )
+    author_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.uuid"), primary_key=True
+    )
     text = Column(String(length=2048))
+
+    parent_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("messages.uuid", ondelete="CASCADE"),
+        # primary_key=True,
+        nullable=True,
+    )
+    parent = relationship("Message", remote_side=[uuid])
+    author = relationship("User")
+
+    thread_count = query_expression()
 
 
 class SessionDevice(Base):
@@ -179,14 +207,12 @@ class UserSession(StatusMixin, Base):
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
     user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.uuid"),
-        primary_key=True
+        UUID(as_uuid=True), ForeignKey("users.uuid"), primary_key=True
     )
     device_id = Column(
         UUID(as_uuid=True),
         ForeignKey("sessions_devices.uuid"),
-        primary_key=True
+        primary_key=True,
     )
     code = Column(String(length=4))
     session_type = Column(Enum(SessionTypeEnum), nullable=False)

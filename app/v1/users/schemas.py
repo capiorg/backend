@@ -16,10 +16,11 @@ class GetUserModel(BaseModelORM):
     first_name: str
     last_name: str
     login_at: Optional[str] = None
+    is_me: Optional[bool] = True
 
     @validator("login_at", always=True, check_fields=False)
     def validate_login(cls, _: str, values: dict[Any, Any]):
-        login = values.get('login')
+        login = values.get("login")
         return f"@{login}"
 
 
