@@ -24,7 +24,7 @@ class MessageGetModel(BaseTimeStampMixin):
     author_id: UUID
     conversation_id: UUID
     text: str
-    thread_count: int
+    thread_count: int = 0
     author: GetUserModel
 
 
