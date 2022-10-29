@@ -62,21 +62,30 @@ class BaseCRUD(ABC):
         self.session.add(add_model)
         return add_model
 
-    async def get_one(self, *args) -> Model:
+    async def get_one(
+        self, *args, transaction: Optional[AsyncSession] = None
+    ) -> Model:
         stmt = select(self.model).where(*args)
-        result = await self.session.execute(stmt)
-        return result.scalar_one()
+        cursor = await self.execute(stmt=stmt, transaction=transaction)
+        return cursor.scalar_one()
 
-    async def get_many(self, *args: Any) -> Model:
+    async def get_many(
+        self, *args: Any, transaction: Optional[AsyncSession] = None
+    ) -> Model:
         query_model = self.model
         stmt = lambda_stmt(lambda: select(query_model))
         stmt += lambda s: s.where(*args)
         query_stmt = cast(Executable, stmt)
 
-        result = await self.session.execute(query_stmt)
-        return result.scalars().all()
+        cursor = await self.execute(stmt=query_stmt, transaction=transaction)
+        return cursor.scalars().all()
 
-    async def _update(self, *args: Any, **kwargs: Any) -> Model:
+    async def _update(
+        self,
+        *args: Any,
+        transaction: Optional[AsyncSession] = None,
+        **kwargs: Any,
+    ) -> Result:
         stmt = (
             update(self.model)
             .where(*args)
@@ -90,60 +99,106 @@ class BaseCRUD(ABC):
             .execution_options(synchronize_session="fetch")
         )
 
-        result = await self.session.execute(stmt)
-        return result
+        cursor = await self.execute(stmt=stmt, transaction=transaction)
+        return cursor
 
-    async def update(self, *args: Any, **kwargs: Any) -> Model:
-        res = await self._update(*args, **kwargs)
+    async def update(
+        self,
+        *args: Any,
+        transaction: Optional[AsyncSession] = None,
+        **kwargs: Any,
+    ) -> Model:
+        res = await self._update(*args, transaction=transaction, **kwargs)
         return res.scalar_one()
 
-    async def update_many(self, *args: Any, **kwargs: Any) -> Model:
-        res = await self._update(*args, **kwargs)
+    async def update_many(
+        self,
+        *args: Any,
+        transaction: Optional[AsyncSession] = None,
+        **kwargs: Any,
+    ) -> Model:
+        res = await self._update(*args, transaction=transaction, **kwargs)
         return res.scalars().all()
 
-    async def exists(self, *args: Any) -> Optional[bool]:
-        """Check is row exists in database"""
-        stmt = exists(select(self.model).where(*args)).select()
-        result_stmt = await self.session.execute(stmt)
-        result = result_stmt.scalar()
+    async def exists(
+        self,
+        *args: Any,
+        transaction: Optional[AsyncSession] = None,
+    ) -> Optional[bool]:
+        stmt = self.exists_stmt(*args)
+        curr = await self.execute(stmt=stmt, transaction=transaction)
+        result = curr.scalar_one()
         return cast(Optional[bool], result)
 
-    async def exists_get(self, *args: Any) -> List[Model]:
+    def exists_stmt(self, *args):
+        return exists(1).select_from(self.model).where(*args).select()
+
+    async def exists_get(
+        self, *args: Any, transaction: Optional[AsyncSession] = None
+    ) -> List[Model]:
         """Check is row exists in database. If it does, returns the row"""
         stmt = select(self.model).where(*args)
-        result_stmt = await self.session.execute(stmt)
-        result = result_stmt.scalars().all()
+        curr = await self.execute(stmt=stmt, transaction=transaction)
+        result = curr.scalars().all()
         return result
 
-    async def base_delete(self, *args: Any) -> Result:
+    async def base_delete(
+        self, *args: Any, transaction: Optional[AsyncSession] = None
+    ) -> Result:
         stmt = delete(self.model).where(*args).returning("*")
-        result = await self.session.execute(stmt)
+        curr = await self.execute(stmt=stmt, transaction=transaction)
 
-        return result
+        return curr
 
-    async def delete_many(self, *args: Any) -> List[Union[UUID, int, str]]:
-        result = await self.base_delete(*args)
+    async def delete_many(
+        self, *args: Any, transaction: Optional[AsyncSession] = None
+    ) -> List[Union[UUID, int, str]]:
+        result = await self.base_delete(*args, transaction=transaction)
         result = result.scalars().all()
         return result
 
-    async def delete_one(self, *args: Any) -> Union[UUID, int, str]:
-        result = await self.base_delete(*args)
+    async def delete_one(
+        self, *args: Any, transaction: Optional[AsyncSession] = None
+    ) -> Union[UUID, int, str]:
+        result = await self.base_delete(*args, transaction=transaction)
         result = result.scalar_one()
         return result
 
-    async def soft_cascade_delete(self, *args: Any, status: int = 0) -> Model:
-        return await self.update(*args, status_id=status)
+    async def soft_cascade_delete(
+        self,
+        *args: Any,
+        status: int = 0,
+        transaction: Optional[AsyncSession] = None,
+    ) -> Model:
+        return await self.update(
+            *args, transaction=transaction, status_id=status
+        )
 
-    async def soft_cascade_delete_many(self, *args: Any) -> List[Model]:
-        return await self.update_many(*args, status_id=0)
+    async def soft_cascade_delete_many(
+        self, *args: Any, transaction: Optional[AsyncSession] = None
+    ) -> List[Model]:
+        return await self.update_many(
+            *args, transaction=transaction, status_id=0
+        )
 
-    async def count(self, *args: Any) -> int:
+    async def count(
+        self, *args: Any, transaction: Optional[AsyncSession] = None
+    ) -> int:
         stmt = select(func.count()).select_from(
             select(self.model).where(*args).subquery()
         )
-        result = await self.session.execute(stmt)
-        count = result.scalar_one()
+        cursor = await self.execute(stmt=stmt, transaction=transaction)
+        count = cursor.scalar_one()
         return cast(int, count)
 
     def _convert_to_model(self, **kwargs) -> Model:
         return self.model(**kwargs)
+
+    async def execute(
+        self, stmt: Any, transaction: Optional[AsyncSession] = None
+    ) -> Result:
+        if transaction:
+            curr = await transaction.execute(stmt)
+        else:
+            curr = await self.session.execute(stmt)
+        return curr
