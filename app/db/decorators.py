@@ -1,5 +1,9 @@
 import logging
-from functools import wraps
+from typing import Any
+from typing import Callable
+from typing import ParamSpec
+from typing import TypeVar
+from typing import cast
 
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.exc import IntegrityError
@@ -13,10 +17,16 @@ from app.exceptions.db.exceptions import handle_unique_error
 logger = logging.getLogger(__name__)
 
 
-def orm_error_handler(func):
-    async def decorator(*args, **kwargs):
+P = ParamSpec("P")
+T = TypeVar("T")
+FuncT = TypeVar("FuncT", bound=Callable[..., Any])
+
+
+def orm_error_handler(fn: FuncT) -> FuncT:
+    async def decorator(*args: P.args, **kwargs: P.kwargs) -> T:
+
         try:
-            return await func(*args, **kwargs)
+            return await fn(*args, **kwargs)
 
         except IntegrityError as exc:
             logger.warning(msg="error orm_error_handler", exc_info=exc)
@@ -37,4 +47,4 @@ def orm_error_handler(func):
         except Exception as exc:
             logger.warning(msg="error orm_error_handler", exc_info=exc)
 
-    return decorator
+    return cast(FuncT, decorator)
