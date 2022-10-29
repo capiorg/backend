@@ -1,5 +1,6 @@
 from typing import List
 from typing import Optional
+from typing import Type
 from uuid import UUID
 
 from sqlalchemy import case
@@ -39,6 +40,7 @@ class MessageRepository:
             if not await self.base_conversation.exists(
                 ConversationUser.user_id == author_id,
                 ConversationUser.conversation_id == conversation_id,
+                transaction=transaction,
             ):
                 user_conversation = ConversationUser(
                     conversation_id=conversation_id,
@@ -47,12 +49,13 @@ class MessageRepository:
                 transaction.add(user_conversation)
                 await transaction.flush()
 
-            created_message = await self.base.insert(
+            created_message = Message(
                 conversation_id=conversation_id,
                 author_id=author_id,
                 parent_id=reply_uuid,
                 text=text,
             )
+            transaction.add(created_message)
             await transaction.commit()
             return created_message
 
@@ -65,18 +68,13 @@ class MessageRepository:
         limit: int = 20,
         offset: int = 0,
     ) -> List[Message]:
-        MessageAlias = aliased(Message, name="m2")
+        message_alias_table = aliased(Message, name="m2")
 
-        is_me_case = case(
-            [(self.model.author_id == user_id, True)], else_=False
-        ).label("is_me")
-
-        count_thread_messages = select(func.count()).select_from(
-            select(MessageAlias)
-            .where(MessageAlias.parent_id == self.model.uuid)
-            .correlate(self.model)
-            .subquery()
+        is_me_case = self.__is_me_expression(user_id=user_id)
+        count_thread_messages = self.__count_thread_messages__expression(
+            alias_t=message_alias_table
         )
+
         stmt = select(self.model)
         stmt = stmt.filter(self.model.conversation_id == chat_id)
 
@@ -102,3 +100,42 @@ class MessageRepository:
         async with self.base.transaction_v2() as transaction:
             curr = await transaction.execute(stmt)
             return curr.scalars().all()
+
+    @orm_error_handler
+    async def get_one(self, user_id: UUID, message_uuid: UUID) -> Message:
+        message_alias_table = aliased(Message, name="m2")
+        is_me_case = self.__is_me_expression(user_id=user_id)
+        count_thread_messages = self.__count_thread_messages__expression(
+            alias_t=message_alias_table
+        )
+
+        stmt = (
+            select(self.model)
+            .filter(self.model.uuid == message_uuid)
+            .options(
+                joinedload(self.model.author).with_expression(
+                    User.is_me, is_me_case
+                ),
+                with_expression(
+                    self.model.thread_count,
+                    count_thread_messages.scalar_subquery(),
+                ),
+            )
+        )
+
+        async with self.base.transaction_v2() as transaction:
+            curr = await transaction.execute(stmt)
+            return curr.scalar_one()
+
+    def __is_me_expression(self, user_id: UUID):
+        return case(
+            [(self.model.author_id == user_id, True)], else_=False
+        ).label("is_me")
+
+    def __count_thread_messages__expression(self, alias_t: Type[Message]):
+        return select(func.count()).select_from(
+            select(alias_t)
+            .where(alias_t.parent_id == self.model.uuid)
+            .correlate(self.model)
+            .subquery()
+        )
