@@ -146,20 +146,25 @@ class SettingsOpenSensus(Settings):
 
 class RedisSettings(BaseSettings):
     REDIS_HOST: str = Field(env="REDIS_HOST", default="localhost")
-    REDIS_PORT: str = Field(env="REDIS_PORT", default="6379")
+    REDIS_PORT: int = Field(env="REDIS_PORT", default="6379")
     REDIS_PWD: str = Field(env="REDIS_PWD", default="")
     REDIS_USER: str = Field(env="REDIS_USER", default="default")
     REDIS_DB: int = Field(env="REDIS_DB", default=2)
+    REDIS_DB_QUEUE: int = Field(env="REDIS_DB_QUEUE", default=8)
+    REDIS_DB_QUEUE_CHANNEL: str = Field(
+        env="REDIS_DB_QUEUE_CHANNEL", default="socketio_channel_v1"
+    )
 
-    @property
-    def dsn(self):
-        return (
-            f"redis://{self.REDIS_USER}:"
-            f"{self.REDIS_PWD}@"
-            f"{self.REDIS_HOST}:"
-            f"{self.REDIS_PORT}/"
-            f"{self.REDIS_DB}"
-        )
+    @classmethod
+    def dsn(
+        cls,
+        host: str,
+        user: str,
+        port: int,
+        password: str,
+        database: int,
+    ):
+        return f"redis://{user}:{password}@{host}:{port}/{database}"
 
     class Config:
         env_file = ".env"
