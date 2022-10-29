@@ -1,5 +1,4 @@
 from uuid import UUID
-
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import UploadFile
@@ -7,6 +6,9 @@ from pyfa_converter import BodyDepends
 
 from app.utils.decorators import standardize_response
 from app.v1.conversations.messages.dependencies import MessageDependencyMarker
+from app.v1.conversations.messages.dependencies import (
+    MessageServiceDependencyMarker,
+)
 from app.v1.conversations.messages.schemas import MessageGetModel
 from app.v1.conversations.messages.schemas import MessageSendModel
 from app.v1.conversations.messages.services import MessageService
@@ -46,7 +48,7 @@ async def get_messages_from_chat(
 async def get_messages_from_chat_and_message(
     chat_id: UUID,
     message_id: UUID,
-    chat_repo: MessageService = Depends(MessageDependencyMarker),
+    chat_service: MessageService = Depends(MessageDependencyMarker),
     current_user: GetCurrentUserModel = Depends(
         dependency=GetCurrentUser(status=[StatusEnum.ACTIVE])
     ),
@@ -54,7 +56,9 @@ async def get_messages_from_chat_and_message(
     """
     Получить активные чаты пользователя
     """
-    return await chat_repo.get_all(user_id=current_user.uuid, chat_id=chat_id, message_id=message_id)
+    return await chat_service.get_all(
+        user_id=current_user.uuid, chat_id=chat_id, message_id=message_id
+    )
 
 
 @message_router.post(
@@ -66,7 +70,7 @@ async def get_messages_from_chat_and_message(
 async def send_message_to_chat(
     chat_id: UUID,
     data: MessageSendModel,
-    chat_repo: MessageService = Depends(MessageDependencyMarker),
+    chat_service: MessageService = Depends(MessageServiceDependencyMarker),
     current_user: GetCurrentUserModel = Depends(
         dependency=GetCurrentUser(status=[StatusEnum.ACTIVE])
     ),
@@ -74,9 +78,9 @@ async def send_message_to_chat(
     """
     Отправить сообщение в чат
     """
-    await chat_repo.create(
+    await chat_service.create(
         conversation_id=chat_id,
-        author_id=current_user.uuid,
+        author=current_user,
         reply_uuid=data.reply_uuid,
         text=data.text,
     )
@@ -104,7 +108,7 @@ async def send_photo_to_chat(
     """
     await chat_repo.create(
         conversation_id=chat_id,
-        author_id=current_user.uuid,
+        author=current_user,
         reply_uuid=data.reply_uuid,
         text=data.text,
     )
