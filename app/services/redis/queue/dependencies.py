@@ -1,0 +1,2 @@
+class RedisSocketQueueDependencyMarker:
+    pass
