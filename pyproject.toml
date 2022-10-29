@@ -19,9 +19,7 @@ bcrypt = "^4.0.1"
 python-multipart = "^0.0.5"
 python-dotenv = "^0.21.0"
 aiohttp = "^3.8.3"
-cashews = "^4.7.1"
 psycopg2-binary = "^2.9.4"
-redis = "^4.3.4"
 uuid7 = "^0.1.0"
 sqlalchemy2-stubs = "^0.0.2-alpha.29"
 opencensus = "^0.9.0"
@@ -34,6 +32,10 @@ phonenumbers = "^8.12.57"
 user-agents = "^2.2.0"
 
 #smsaero = {git = "https://github.com/dotX12/smsaero.git", rev = "master"}
+cashews = "^4.7.1"
+redis = "^4.3.4"
+python-socketio = "^5.7.2"
+
 
 [tool.poetry.dev-dependencies]
 
