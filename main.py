@@ -1,3 +1,4 @@
+from socketio import AsyncRedisManager
 import uvicorn
 from fastapi import Depends
 from fastapi import FastAPI
@@ -13,12 +14,20 @@ from app.i18n.tr import get_locale
 from app.services.ipwhois.client import IPWhoisClient
 from app.services.ipwhois.dependencies import IPWhoisClientMarker
 from app.services.smsaero.dependencies import SMSAeroDependencyMarker
+from app.services.redis.queue.client import RedisSocketQueue
+from app.services.redis.queue.dependencies import (
+    RedisSocketQueueDependencyMarker,
+)
 from app.utils.logging.middlewares import LoggingMiddleware
 from app.utils.logging.middlewares import OpenCensusFastAPIMiddleware
 from app.v1.binding import own_router_v1
 from app.v1.conversations.chats.dependencies import ChatDependencyMarker
 from app.v1.conversations.chats.repo import ChatRepository
 from app.v1.conversations.messages.dependencies import MessageDependencyMarker
+from app.v1.conversations.messages.dependencies import (
+    MessageServiceDependencyMarker,
+)
+from app.v1.conversations.messages.repo import MessageRepository
 from app.v1.conversations.messages.services import MessageService
 from app.v1.security.dependencies import UserSessionDependencyMarker
 from app.v1.security.repo import UserSessionRepository
@@ -32,6 +41,7 @@ from config import OtherServicesSettings
 from config import OtherServicesSettingsMarker
 from config import Settings
 from config import settings_app
+from config import settings_redis
 from config import settings_sensus_app
 from config import settings_services
 from misc import async_session
@@ -101,12 +111,35 @@ def get_application_v1() -> FastAPI:
             ChatDependencyMarker: lambda: ChatRepository(
                 db_session=async_session
             ),
-            MessageDependencyMarker: lambda: MessageService(
+            MessageDependencyMarker: lambda: MessageRepository(
                 db_session=async_session
+            ),
+            RedisSocketQueueDependencyMarker: lambda: RedisSocketQueue(
+                mgr=AsyncRedisManager(
+                    url=settings_redis.dsn(
+                        host=settings_redis.REDIS_HOST,
+                        port=settings_redis.REDIS_PORT,
+                        database=settings_redis.REDIS_DB_QUEUE,
+                        user=settings_redis.REDIS_USER,
+                        password=settings_redis.REDIS_PWD,
+                    ),
+                    channel=settings_redis.REDIS_DB_QUEUE_CHANNEL,
+                )
             ),
         }
     )
-
+    application.dependency_overrides.update(
+        {
+            MessageServiceDependencyMarker: lambda: MessageService(
+                repo=application.dependency_overrides.get(
+                    MessageDependencyMarker
+                )(),
+                redis=application.dependency_overrides.get(
+                    RedisSocketQueueDependencyMarker
+                )(),
+            ),
+        }
+    )
     application.include_router(own_router_v1)
     application = setup_exception_handlers(app=application)
     return application
