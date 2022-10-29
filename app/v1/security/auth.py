@@ -10,7 +10,6 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.security import HTTPBearer
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jose import jwt
 from starlette import status as starlette_status
@@ -20,10 +19,8 @@ from app.v1.security.context import verify_password
 from app.v1.statuses.enums import StatusEnum
 from app.v1.users.dependencies import UsersDependencyMarker
 from app.v1.users.schemas import GetCurrentUserModel
-from app.v1.users.schemas import GetUserWithPhoneEmail
 from app.v1.users.services import UserService
 from config import settings_app
-from misc import cache
 
 JWTPayloadMapping = MutableMapping[
     str, Union[datetime, bool, str, List[str], List[int]]
@@ -127,13 +124,6 @@ class GetCurrentUser:
     def __init__(self, status: Optional[List[StatusEnum]] = None):
         self.status = status or [StatusEnum.ACTIVE]
 
-    @cache.hit(
-        ttl=timedelta(minutes=10),
-        cache_hits=100,
-        update_after=50,
-        key="users:get_current:{token}",
-        prefix="v1",
-    )
     async def __call__(
         self,
         user_service: UserService = Depends(UsersDependencyMarker),
