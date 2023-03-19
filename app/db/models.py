@@ -1,24 +1,21 @@
 import enum
 
 from sqlalchemy import Boolean
-from sqlalchemy import Enum
-from sqlalchemy import Numeric
-from sqlalchemy import UniqueConstraint
-from sqlalchemy import and_
-from sqlalchemy import join
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import ConcreteBase
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import query_expression
-from uuid_extensions import uuid7
-
 from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
+from sqlalchemy import Numeric
 from sqlalchemy import String
+from sqlalchemy import Text
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import declared_attr
+from sqlalchemy.orm import query_expression
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.functions import current_timestamp
+from uuid_extensions import uuid7
 
 from app.db.mixins import TimestampMixin
 from misc import Base
@@ -31,6 +28,13 @@ class SessionTypeEnum(str, enum.Enum):
 
 class Statuses(Base):
     __tablename__ = "statuses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, unique=True)
+
+
+class Role(Base):
+    __tablename__ = "roles"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, unique=True)
@@ -51,15 +55,14 @@ class StatusMixin(Base):
 
 
 class Document(
-    StatusMixin,
     TimestampMixin,
     Base,
 ):
     __tablename__ = "documents"
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
-    original_filename = Column(String(255))
-    security_name = Column(String(255), nullable=True)
+    document_id = Column(UUID(as_uuid=True))
+    filename = Column(Text, nullable=True)
     size_bytes = Column(Numeric, nullable=True)
     mime_type = Column(String(255), nullable=True)
 
@@ -75,9 +78,24 @@ class User(TimestampMixin, StatusMixin, Base):
     last_name = Column(String(255), nullable=False)
     password = Column(String)
 
+    is_online = Column(Boolean, default=False)
+    last_activity = Column(DateTime, default=current_timestamp())
+
+    avatar_id = Column(
+        UUID(as_uuid=True), ForeignKey("documents.uuid")
+    )
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
+
     is_me = query_expression()
+
     conversations = relationship(
         "Conversation", secondary="users_conversations"
+    )
+    avatar = relationship(
+        "Document",
+    )
+    role = relationship(
+        "Role",
     )
 
 
@@ -160,29 +178,6 @@ class Conversation(TimestampMixin, Base):
     #     )
 
 
-class Message(TimestampMixin, Base):
-    __tablename__ = "messages"
-    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
-    conversation_id = Column(
-        UUID(as_uuid=True), ForeignKey("conversations.uuid"), primary_key=True
-    )
-    author_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.uuid"), primary_key=True
-    )
-    text = Column(String(length=2048))
-
-    parent_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("messages.uuid", ondelete="CASCADE"),
-        # primary_key=True,
-        nullable=True,
-    )
-    parent = relationship("Message", remote_side=[uuid])
-    author = relationship("User")
-
-    thread_count = query_expression()
-
-
 class SessionDevice(Base):
     __tablename__ = "sessions_devices"
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
@@ -219,3 +214,45 @@ class UserSession(StatusMixin, Base):
     status_id = Column(Integer, ForeignKey(column=Statuses.id), default=3)
 
     device = relationship("SessionDevice")
+
+
+class MessageDocument(Base):
+    __tablename__ = "messages_documents"
+
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
+
+    message_id = Column(
+        UUID(as_uuid=True), ForeignKey("messages.uuid"), primary_key=True
+    )
+    document_id = Column(
+        UUID(as_uuid=True), ForeignKey("documents.uuid"), primary_key=True
+    )
+
+    message = relationship("Message")
+    document = relationship("Document")
+
+
+class Message(TimestampMixin, Base):
+    __tablename__ = "messages"
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
+    conversation_id = Column(
+        UUID(as_uuid=True), ForeignKey("conversations.uuid"), primary_key=True
+    )
+    author_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.uuid"), primary_key=True
+    )
+    text = Column(String(length=2048))
+
+    parent_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("messages.uuid", ondelete="CASCADE"),
+        # primary_key=True,
+        nullable=True,
+    )
+
+    documents = relationship("Document", secondary="messages_documents", uselist=True)
+
+    parent = relationship("Message", remote_side=[uuid])
+    author = relationship("User")
+
+    thread_count = query_expression()

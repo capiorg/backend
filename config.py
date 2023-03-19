@@ -130,13 +130,14 @@ class SettingsOpenSensus(Settings):
         "password",
         "email",
         "token",
-        "Authorization",
+        "authorization",
         "first_name",
         "last_name",
         "csrftoken",
         "api_key",
         "ctn",
         "phone",
+        "session_id",
     )
 
     class Config:

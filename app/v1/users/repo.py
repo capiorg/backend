@@ -1,6 +1,8 @@
 from typing import List
 from uuid import UUID
 
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import sessionmaker
 
 from app.db.crud.base import BaseCRUD
@@ -39,8 +41,14 @@ class UserRepository:
 
     @orm_error_handler
     async def get_one_from_uuid(self, uuid: UUID) -> User:
-        async with self.base.transaction_v2():
-            return await self.base.get_one(self.model.uuid == uuid)
+        async with self.base.transaction_v2() as transaction:
+            stmt = (
+                select(User)
+                .options(joinedload(User.avatar), joinedload(User.role))
+                .filter(User.uuid == uuid)
+            )
+            curr = await transaction.execute(stmt)
+            return curr.scalar_one()
 
     @orm_error_handler
     async def get_one_from_phone(self, phone: str) -> User:

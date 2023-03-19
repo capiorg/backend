@@ -4,25 +4,26 @@ import logging
 import math
 import time
 from io import BytesIO
+from typing import Self
 
-from fastapi import Request, Response
+from fastapi import Request
+from fastapi import Response
 from opencensus.common.transports import sync
-from opencensus.trace import (
-    attributes_helper,
-    execution_context,
-    samplers,
-)
+from opencensus.trace import attributes_helper
+from opencensus.trace import execution_context
+from opencensus.trace import samplers
 from opencensus.trace import span as span_module
 from opencensus.trace import tracer as tracer_module
 from opencensus.trace import utils
 from opencensus.trace.base_exporter import Exporter
 from opencensus.trace.propagation import trace_context_http_header_format
 from starlette.middleware.base import RequestResponseEndpoint
-from starlette.types import ASGIApp, Message
+from starlette.types import ASGIApp
+from starlette.types import Message
 
+from app.exceptions.cors import handle_custom_500_with_cors
 from app.utils.logging.json_logger import EMPTY_VALUE
 from app.utils.logging.schemas import RequestJsonLogSchema
-from app.exceptions.cors import handle_custom_500_with_cors
 from config import settings_app
 
 HTTP_HOST = attributes_helper.COMMON_ATTRIBUTES["HTTP_HOST"]
@@ -44,10 +45,10 @@ class AsyncIteratorWrapper:
         super().__init__()
         self._it = BytesIO(bytes_)
 
-    def __aiter__(self):
+    def __aiter__(self) -> Self:
         return self
 
-    async def __anext__(self):
+    async def __anext__(self) -> bytes:
         try:
             value = next(self._it)
         except StopIteration:
@@ -66,7 +67,7 @@ class DefaultExporter(Exporter):
     """
 
     def __init__(self, transport=sync.SyncTransport):
-        self.transport = transport(self)
+        self.transport: sync.SyncTransport = transport(self)
 
     def emit(self, span_datas):
         """

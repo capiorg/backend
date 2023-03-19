@@ -13,7 +13,7 @@ DATABASE_URL = settings_app.dsn
 engine = create_async_engine(
     DATABASE_URL,
     future=True,
-    echo=False,
+    echo=True,
     connect_args={"timeout": 30},
     pool_size=200,
     max_overflow=300,

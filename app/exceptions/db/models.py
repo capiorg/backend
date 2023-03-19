@@ -18,13 +18,14 @@ class ExceptionSQL(Exception):
 
     @property
     def original_exception(self):
-        if isinstance(self._exc, DatabaseError):
-            return self._exc.orig.obj
-        else:
+        if isinstance(self._exc, ExceptionSQL):
             return self._exc
+        if hasattr(self._exc, "orig"):
+            return self._exc.orig.__cause__
+        return self._exc
 
     def original_message(self):
-        return getattr(self.original_exception, "message", None)
+        return getattr(self.original_exception, "message", None) or str(self.original_exception)
 
     def original_detail(self):
-        return getattr(self.original_exception, "detail", None)
+        return getattr(self.original_exception, "detail", None) or str(self.original_exception)
